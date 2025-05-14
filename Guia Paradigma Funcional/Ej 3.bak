@@ -1,5 +1,0 @@
-((car (cdr (cdr (list + - * /)))) 5 5)
-#primero.se.crea.la.lista
-#despues.se.hacen.los.dos.cdr.eso.devuelve.*.y./.en.forma.de.lista
-#despues.se.hace.el.car.que.extrae.el.*.en.forma.de.elemento
-#finalmente.la.expresion.queda.*.5.5.que.al.evaluarse.porque.no.hay.un.quote.o.un.apostrofe.da.25
