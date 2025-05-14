@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 
 class Mensaje:
     @abstractmethod
-    def enviar_notificacion(self)
+    def enviar_notificacion(self):
         pass
 
 class CorreoElectronico:
@@ -131,7 +131,7 @@ contar_piezas_reparacion(dispositivos)
 #Al utilizar los ifelse para detectar de que tipo de dispositivo se trata se esta violando el principio de sustitucion de Liskov, ya que
 #las clases derivadas no pueden ser sustituidas por su clase base sin alterar el correcto funcionamiento del codigo
 #Para solucionar este problema hay que sobreescribir las propiedades de cada clase en la clase dispositivo
-
+#Correccion, el principio de Abierto Cerrado
 
 class IUsuario(ABC):
     @abstractmethod
@@ -180,3 +180,4 @@ profesor.solicitar_reserva_sala_estudio()
 
 #Se viola el principio de segregacion de interfaces, la clase Alumno responde a un metodo que no tiene implementado, que es el de reserva de sala de estudio
 #existe una dependencia innecesaria que debe ser eliminada, en especifico el metodo solicitar reserva sala de estudio de la clase alumno
+#Se soluciona con interfaces distintas para cada persona

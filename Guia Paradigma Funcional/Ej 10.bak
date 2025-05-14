@@ -1,0 +1,9 @@
+(define contador 0)
+(define largo
+  (lambda (lista)
+    (+ contador 1)
+    (if (= (car lista) (car (cdr lista)))
+        contador
+        (largo (cdr (lista))))))
+
+(largo '(a b c))
