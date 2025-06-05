@@ -17,9 +17,7 @@ viaje(gabriela, 2, 8).
 viaje(roberto, 3, 6).
 viaje(jose, 1, 8).
 
-% -----------------------------------------------
-% Camino de una persona (lista de localidades)
-% -----------------------------------------------
+% Calcula el camino (lista de ciudades) entre IdOrigen e IdDestino según orden
 camino(Persona, Camino) :-
     viaje(Persona, IdOrigen, IdDestino),
     orden(Orden),
@@ -37,63 +35,66 @@ sublista(Desde, Hasta, Pos, [_ | XS], R) :-
     sublista(Desde, Hasta, Pos1, XS, R).
 sublista(_, _, _, [], []).
 
-% -----------------------------------------------
-% Tramos: lista de pares entre localidades
-% -----------------------------------------------
+% Convierte lista de ciudades en lista de tramos (pares)
 tramos([_], []).
 tramos([A, B | Resto], [(A, B) | TramosResto]) :-
     tramos([B | Resto], TramosResto).
 
-% -----------------------------------------------
-% Saber si un tramo pertenece a una lista de tramos
-% -----------------------------------------------
+% Verifica si un tramo (X,Y) pertenece a una lista de tramos
 pertenece((X, Y), [(X, Y) | _]).
 pertenece((X, Y), [_ | Resto]) :-
     pertenece((X, Y), Resto).
 
-% -----------------------------------------------
-% Contar cuántas personas usan un tramo
-% -----------------------------------------------
+% Cuenta cuántas personas usan el tramo completo (O, D)
 usan_tramo(_, [], 0).
 usan_tramo((O, D), [P | Resto], Cant) :-
-    camino(P, Camino),
-    tramos(Camino, Tramos),
-    pertenece((O, D), Tramos),
+    camino(P, CaminoP),
+    tramos(CaminoP, TramosP),
+    pertenece((O, D), TramosP),
     usan_tramo((O, D), Resto, CantR),
     Cant is CantR + 1.
 usan_tramo((O, D), [P | Resto], Cant) :-
-    camino(P, Camino),
-    tramos(Camino, Tramos),
-    \+ pertenece((O, D), Tramos),
+    camino(P, CaminoP),
+    tramos(CaminoP, TramosP),
+    \+ pertenece((O, D), TramosP),
     usan_tramo((O, D), Resto, Cant).
 
-% -----------------------------------------------
-% Costo total de los tramos de una persona
-% -----------------------------------------------
+% Calcula el costo total para la lista de tramos y las personas
 costo_total([], _, 0).
-costo_total([(O, _) | Tramos], Personas, Total) :-
-    costo(_, O, Precio),
-    usan_tramo((O, _), Personas, Cant),
-    Cant > 0,
-    Parcial is Precio // Cant,
+costo_total([(O, D) | Tramos], Personas, Total) :-
+    costo(IdC, O, Precio),
+    IdC > 0, % asegurar que haya costo para la ciudad O
+    usan_tramo((O, D), Personas, Cant),
     costo_total(Tramos, Personas, Resto),
+    (Cant =:= 0 ->
+        Parcial = 0
+    ;
+        Parcial is Precio // Cant),
     Total is Parcial + Resto.
 
-% -----------------------------------------------
-% Predicado principal: repartir_costos/2
-% -----------------------------------------------
-repartir_costos([], []).
+% Versión sin usar "->" para compatibilidad total
+costo_total_no_cond([], _, 0).
+costo_total_no_cond([(O,D) | Tramos], Personas, Total) :-
+    costo(IdC, O, Precio),
+    usan_tramo((O, D), Personas, Cant),
+    costo_total_no_cond(Tramos, Personas, Resto),
+    (Cant =:= 0,
+     Parcial = 0;
+     Cant > 0,
+     Parcial is Precio // Cant),
+    Total is Parcial + Resto.
 
+% Reparte los costos entre las personas dadas
+repartir_costos([], []).
 repartir_costos([Persona | Resto], [[Persona, Camino, Total] | Resultado]) :-
     camino(Persona, Camino),
     tramos(Camino, Tramos),
     repartir_costos(Resto, Resultado),
     juntar([Persona | Resto], Todas),
-    costo_total(Tramos, Todas, Total).
+    costo_total_no_cond(Tramos, Todas, Total).
 
-% -----------------------------------------------
-% juntar(Lista, Resultado): clona la lista (sin usar append)
-% -----------------------------------------------
+% Copiar lista
 juntar([], []).
 juntar([X | XS], [X | R]) :-
     juntar(XS, R).
+
